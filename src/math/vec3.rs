@@ -83,16 +83,6 @@ impl <T> Sub for &Vec3<T>
     }
 }
 
-impl <'a, T> Sum<&'a Self> for Vec3<T>
-    where T: Numeric {
-
-    fn sum<I>(iter: I) -> Self
-        where I: Iterator<Item=&'a Self> {
-
-        iter.fold(Self::new([T::zero(); 3]), |acc, x| acc)
-    }
-}
-
 impl <T> From<[f64; 3]> for Vec3<T>
     where T: From<f64> {
 

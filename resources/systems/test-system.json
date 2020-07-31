@@ -5,7 +5,10 @@
   "entities": [
     {
       "id": "entity-1",
-      "mass": 1000000
+      "mass": 1000000,
+      "position": [0, 1, 2],
+      "velocity": [3, 4, 5],
+      "acceleration": [6, 7, 8]
     }
   ]
 }

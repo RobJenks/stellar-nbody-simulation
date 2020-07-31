@@ -11,19 +11,13 @@ mod util;
 
 use crate::core::simulation;
 use shader_version::OpenGL;
+use crate::entities::system::System;
 
 fn main() {
-    let tmp = state::State::<f64>::new();
+    let sys = System::from_file("resources/systems/test-system.json");
+    let state = sys.generate_state::<f64>();
 
-    let mut vmod : Vec<i32> = vec![1,2,3,4];
-    let vother : Vec<i32> = vec![5,6,7,8];
-
-    println!("{:?}, {:?}", &vmod, &vother);
-
-    vmod.iter_mut().zip(&vother).for_each(|(mut vm, vo)| *vm += vo);
-
-    println!("{:?}, {:?}", &vmod, &vother);
-
+    println!("{:?}", sys);
 
     let mut simulation = simulation::Simulation::create(
         simulation::BuildOptions {
