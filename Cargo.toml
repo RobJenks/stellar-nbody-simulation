@@ -1,0 +1,31 @@
+[package]
+name = "stellar-nbody-simulation"
+version = "0.1.0"
+authors = ["Rob"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+failure = "0.1.5"
+reqwest = "0.9.19"
+chrono = "0.4.7"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0.98"
+serde_json = "1.0"
+serde_tuple = "0.2.5"
+
+gfx = "0.17.1"
+rand = "0.6.0"
+gfx_device_gl = "0.15.0"
+vecmath = "1.0.0"
+image = "0.22.1"
+piston_window = "0.103.0"
+piston2d-sprite = "0.57.0"
+piston2d-drag_controller = "0.29.0"
+piston2d-deform_grid = "0.4.0"
+shader_version = "0.6.0"
+
+repng = "0.2.2"
+scrap = "0.5.0"
