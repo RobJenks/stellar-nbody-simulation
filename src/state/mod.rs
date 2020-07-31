@@ -1,8 +1,11 @@
+use core::fmt::Debug;
 use crate::core::types::*;
 use crate::math::vec3::Vec3;
 
+#[derive(Debug)]
+pub struct State<TNum>
+    where TNum: Numeric {
 
-pub struct State<TNum> {
     id: Vec<String>,
     mass: Scalars<TNum>,
     position: Vectors<TNum>,

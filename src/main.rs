@@ -18,6 +18,7 @@ fn main() {
     let state = sys.generate_state::<f64>();
 
     println!("{:?}", sys);
+    println!("{:?}", state);
 
     let mut simulation = simulation::Simulation::create(
         simulation::BuildOptions {

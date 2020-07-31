@@ -2,6 +2,7 @@ use std::ops::{Add, Sub, Mul, AddAssign};
 use core::iter::Sum;
 use crate::core::types::Numeric;
 
+#[derive(Debug)]
 pub struct Vec3<T> {
     data: [T; 3]
 }
