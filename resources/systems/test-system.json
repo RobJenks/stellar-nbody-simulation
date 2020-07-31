@@ -1,0 +1,11 @@
+{
+  "id": "test-system",
+  "gravitational_constant": 0.9,
+  "softening_constant": 0.1,
+  "entities": [
+    {
+      "id": "entity-1",
+      "mass": 1000000
+    }
+  ]
+}

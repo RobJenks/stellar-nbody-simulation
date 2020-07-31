@@ -106,7 +106,7 @@ impl Simulation {
 
                             // Draw zoom box if relevant
                             if self.is_mouse_dragging(MOUSE_LEFT) {
-                                let rect = self.get_drag_selection(MOUSE_LEFT, &window_size).unwrap_or_else(|| panic!("No drag data"));
+                                let rect = self.get_drag_selection(MOUSE_LEFT, &window_size).unwrap_or_else(|| panic!("No drag entities"));
                                 rectangle(rendering::colour::COLOUR_SELECTION, rect, context.transform, g);
                             }
 
@@ -163,7 +163,7 @@ impl Simulation {
     fn mouse_drag_up(&mut self, button_index: usize) {
         match button_index {
             MOUSE_LEFT => {         // Post-selection drag
-                let rect = self.get_drag_selection(MOUSE_LEFT, &self.window_size).unwrap_or_else(|| panic!("No drag data"));
+                let rect = self.get_drag_selection(MOUSE_LEFT, &self.window_size).unwrap_or_else(|| panic!("No drag entities"));
                 self.zoom_to(&rect);
                 self.update_backbuffer();
             }

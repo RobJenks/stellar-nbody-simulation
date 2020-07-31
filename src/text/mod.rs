@@ -1,6 +1,6 @@
 use piston_window::Glyphs;
 
-pub const DEFAULT_FONT: &str = "resources/font-fira-sans.ttf";
+pub const DEFAULT_FONT: &str = "resources/fonts/font-fira-sans.ttf";
 
 pub struct TextManager {
     font: String,

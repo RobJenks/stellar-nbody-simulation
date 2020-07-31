@@ -1,7 +1,10 @@
 mod core;
 mod math;
+mod nbody;
 mod integrator;
 mod rendering;
+mod entities;
+mod io;
 mod state;
 mod text;
 mod util;
