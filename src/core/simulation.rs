@@ -1,12 +1,15 @@
 extern crate piston_window;
+use std::ops::{Add, Sub, Mul, Div, AddAssign};
+use core::iter::Sum;
 use ::image;
 use piston_window::*;
 use crate::rendering;
-use crate::rendering::BackBuffer;
+use crate::rendering::{BackBuffer, Renderer};
 use crate::text;
 use std::cell::{RefCell, Ref, RefMut};
 use crate::util::temporal::get_current_timestamp_secs;
 use crate::nbody::nbody_system::NBodySystem;
+use crate::core::types::Numeric;
 
 const MOUSE_LEFT: usize = 0;
 const MOUSE_RIGHT: usize = 1;
@@ -17,7 +20,9 @@ const PAN_SCALING_FACTOR: f64 = 1.5;
 
 const MAX_OBJECT_SELECT_DISTANCE_SQ: f64 = 2.0 * 2.0;
 
-pub struct Simulation {
+pub struct Simulation<TNum>
+    where TNum: Numeric {
+
     window: RefCell<PistonWindow>,
     text_manager: RefCell<text::TextManager>,
 
@@ -31,17 +36,20 @@ pub struct Simulation {
     cursor_pos: [f64; 2],
     mouse_down_point: [Option<[f64; 2]>; MOUSE_BUTTON_COUNT],
 
-    nbody_system: NBodySystem<f64>
+    nbody_system: NBodySystem<TNum>,
+    renderer: RefCell<Renderer>
 }
 
-impl Simulation {
+impl <TNum> Simulation<TNum>
+    where TNum: Numeric + Add<Output = TNum> + Sub<Output = TNum> + Mul<Output = TNum> + Div<Output = TNum> + AddAssign + Sum {
+
     pub fn execute(&mut self) {
         let factory: GfxFactory = self.window().factory.clone();
         let mut texture_context = TextureContext { factory, encoder: self.window_mut().factory.create_command_buffer().into() };
         let mut texture: G2dTexture = Texture::from_image(&mut texture_context,&self.canvas, &TextureSettings::new()).unwrap();
 
         loop {
-            self.nbody_system.step(0.008);    // Temporarily within render loop
+            self.nbody_system.step(TNum::from_f64(0.008));    // Temporarily within render loop
 
             let e_next = self.window_mut().next();
             if e_next == None { break; }
@@ -93,6 +101,7 @@ impl Simulation {
                         let scaled_size = (self.draw_sizef[0] / self.zoom_level, self.draw_sizef[1] / self.zoom_level);
                         let mut text_manager = self.text_manager.borrow_mut();
                         let glyph_cache = text_manager.glyph_cache();
+                        let mut renderer = self.renderer.borrow_mut();
 
                         self.window.borrow_mut().draw_2d(&e, |_context: Context, g, device| {
                             // Global transform to a [0.0 1.0] coordinate space, in each axis
@@ -100,12 +109,12 @@ impl Simulation {
                                 .scale(render_size[0], render_size[1]);
 
                             // Render all window content
-                            rendering::perform_rendering(g, &context, scaled_size, zoom_level, view_origin, &self.nbody_system);
+                            renderer.perform_rendering(g, &context, scaled_size, zoom_level, view_origin, &self.nbody_system);
 
                             // Render status text
                             self.render_text_lines(vec![
-                                format!("Step {}, Pos[0] = {:?}", self.nbody_system.get_step_count(), self.nbody_system.get_current_state().position(0)).as_str(),
-                                format!("Vel[0] = {:?}", self.nbody_system.get_current_state().velocity(0)).as_str()
+                                format!("Step {}, Pos[1] = {:?}", self.nbody_system.get_step_count(), self.nbody_system.get_current_state().position(1)).as_str(),
+                                format!("Vel[1] = {:?}", self.nbody_system.get_current_state().velocity(1)).as_str()
                             ],
                             &[0.01, 0.90], 0.035, [0.0,1.0,0.0,1.0], 14, glyph_cache, &context, g);
 
@@ -146,13 +155,13 @@ impl Simulation {
     }
 
     fn mouse_down(&mut self, button: &MouseButton) {
-        if let Some(ix) = Simulation::mouse_button_index(button) {
+        if let Some(ix) = Simulation::<TNum>::mouse_button_index(button) {
             self.mouse_down_point[ix] = Some(self.cursor_pos.clone());
         }
     }
 
     fn mouse_up(&mut self, button: &MouseButton) {
-        if let Some(ix) = Simulation::mouse_button_index(button) {
+        if let Some(ix) = Simulation::<TNum>::mouse_button_index(button) {
             if self.is_mouse_dragging(ix) {
                 self.mouse_drag_up(ix)
             } else {
@@ -271,7 +280,7 @@ impl Simulation {
     }
 
     fn update_backbuffer(&mut self) {
-        rendering::prepare_backbuffer(&mut self.canvas, &self.draw_size, self.zoom_level, self.view_origin);
+        Renderer::prepare_backbuffer(&mut self.canvas, &self.draw_size, self.zoom_level, self.view_origin);
     }
 
     #[allow(unused_parens)]
@@ -318,9 +327,9 @@ impl Simulation {
     }
 
 
-    pub fn create(options: BuildOptions, nbody_system: NBodySystem<f64>) -> Self {
-        let mut window = Simulation::init_window(&options);
-        let text_manager = Simulation::init_text_manager(text::DEFAULT_FONT.to_string(), &mut window);
+    pub fn create(options: BuildOptions, nbody_system: NBodySystem<TNum>) -> Self {
+        let mut window = Simulation::<TNum>::init_window(&options);
+        let text_manager = Simulation::<TNum>::init_text_manager(text::DEFAULT_FONT.to_string(), &mut window);
 
         let draw_size: [u32; 2] = [window.draw_size().width as u32, window.draw_size().height as u32];
         let draw_sizef: [f64; 2] = [draw_size[0] as f64, draw_size[1] as f64];
@@ -341,7 +350,8 @@ impl Simulation {
             cursor_pos: [0.0, 0.0],
             mouse_down_point: [None; MOUSE_BUTTON_COUNT],
 
-            nbody_system
+            nbody_system,
+            renderer: RefCell::new(Renderer::new())
         }
     }
 

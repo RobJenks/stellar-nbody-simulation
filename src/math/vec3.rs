@@ -107,9 +107,9 @@ impl <T> Sub for &Vec3<T>
 }
 
 impl <T> From<[f64; 3]> for Vec3<T>
-    where T: From<f64> {
+    where T: Numeric {
 
     fn from(x: [f64; 3]) -> Self {
-        Self::new([T::from(x[0]), T::from(x[1]), T::from(x[2])])
+        Self::new([T::from_f64(x[0]), T::from_f64(x[1]), T::from_f64(x[2])])
     }
 }

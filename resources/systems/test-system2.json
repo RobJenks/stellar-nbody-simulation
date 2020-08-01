@@ -1,0 +1,35 @@
+{
+  "id": "test-system2",
+  "gravitational_constant": 6.67408e-11,
+  "softening_constant": 0.1,
+  "entities": [
+    {
+      "id": "sol",
+      "mass": 1.998855e30,
+      "position": [0,0,0],
+      "velocity": [0,0,0],
+      "acceleration": [0, 0, 0]
+    },
+    {
+      "id": "venus",
+      "mass": 4.869e24,
+      "position": [41e9, 0, 0],
+      "velocity": [0, -35020, 0],
+      "acceleration": [0, 0, 0]
+    },
+    {
+      "id": "earth",
+      "mass": 5.9722e24,
+      "position": [0,149.6e9,0],
+      "velocity": [29780,0,0],
+      "acceleration": [0, 0, 0]
+    },
+    {
+      "id": "moon",
+      "mass": 7.342e22,
+      "position": [0,533399000,0],
+      "velocity": [30800,0,0],
+      "acceleration": [0, 0, 0]
+    }
+  ]
+}

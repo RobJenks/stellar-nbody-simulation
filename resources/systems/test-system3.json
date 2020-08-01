@@ -1,0 +1,21 @@
+{
+  "id": "test-system3",
+  "gravitational_constant": 39.5,
+  "softening_constant": 0.15,
+  "entities": [
+    {
+      "id": "sol",
+      "mass": 1.998855e30,
+      "position": [0,0,0],
+      "velocity": [0,0,0],
+      "acceleration": [0, 0, 0]
+    },
+    {
+      "id": "earth",
+      "mass": 2.987805518659432525120631561569e-6,
+      "position": [6.323068381496928e-01, -7.827079376645069e-01, 1.074522599545415e-04],
+      "velocity": [1.308764246719245e-02, 1.074239260561452e-02, 3.402359033964993e-07],
+      "acceleration": [0, 0, 0]
+    }
+  ]
+}

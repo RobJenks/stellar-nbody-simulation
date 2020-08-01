@@ -18,7 +18,7 @@ pub struct System {
 
 impl System {
     pub fn get_gravitational_constant(&self) -> f64 { self.gravitational_constant }
-    pub fn get_softeninig_constant(&self) -> f64 { self.softening_constant }
+    pub fn get_softening_constant(&self) -> f64 { self.softening_constant }
 
     pub fn from_file(file: &str) -> Self {
         let data = std::fs::read_to_string(file)
@@ -35,7 +35,7 @@ impl System {
 
         self.entities.iter().for_each(|x| state.add_entity(
             x.id.clone(),
-            TNum::from(x.mass),
+            TNum::from_f64(x.mass),
             Vec3::from(x.position),
             Vec3::from(x.velocity),
             Vec3::from(x.acceleration)));

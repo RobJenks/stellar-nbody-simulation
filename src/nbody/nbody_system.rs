@@ -30,8 +30,8 @@ impl<TNum> NBodySystem<TNum>
 
     pub fn new(system: &System, state_cycles: usize) -> Self {
         Self::new_from_params(
-            TNum::from(system.get_gravitational_constant()),
-            TNum::from(system.get_softeninig_constant()),
+            TNum::from_f64(system.get_gravitational_constant()),
+            TNum::from_f64(system.get_softening_constant()),
             system.generate_state(),
             state_cycles
         )
