@@ -25,7 +25,7 @@ impl <TNum> State<TNum>
             acceleration: vec![]
         }
     }
-
+pub fn set_id(&mut self, index: usize, id: String) { self.id[index] = id; }
     pub fn id(&self, index: usize) -> &String { &self.id[index] }
     pub fn ids(&self) -> &Vec<String> { &self.id }
     pub fn ids_mut(&mut self) -> &mut Vec<String> { &mut self.id }

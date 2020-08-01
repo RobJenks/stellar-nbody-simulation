@@ -17,6 +17,9 @@ pub struct System {
 }
 
 impl System {
+    pub fn get_gravitational_constant(&self) -> f64 { self.gravitational_constant }
+    pub fn get_softeninig_constant(&self) -> f64 { self.softening_constant }
+
     pub fn from_file(file: &str) -> Self {
         let data = std::fs::read_to_string(file)
             .expect(format!("Failed to read file ({})", file).as_str());

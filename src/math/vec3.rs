@@ -22,6 +22,16 @@ impl <T> Vec3<T> {
         Self { data: [T::zero(); 3] }
     }
 
+    pub fn add_vec(v0: &Self, v1: &Self) -> Self
+        where T: Numeric + Add<Output = T> {
+
+        Self::new([
+            v0.data[0] + v1.data[0],
+            v0.data[1] + v1.data[1],
+            v0.data[2] + v1.data[2]
+        ])
+    }
+
     pub fn scale(&self, scalar: T) -> Self
         where T: Numeric + Mul<Output = T> {
         Self::new([
@@ -41,11 +51,11 @@ impl <T> Clone for Vec3<T>
     where T: Numeric {
 
     fn clone(&self) -> Self {
-        Vec3::new(self.data.clone())
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        self.data = source.data.clone();
+        Vec3::new([
+            self.data[0],
+            self.data[1],
+            self.data[2]
+        ])
     }
 }
 
