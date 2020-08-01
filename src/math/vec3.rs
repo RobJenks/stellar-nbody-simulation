@@ -41,6 +41,10 @@ impl <T> Vec3<T> {
         ])
     }
 
+    pub fn set_value(&mut self, value: [T; 3]) {
+        self.data = value;
+    }
+
     pub fn length(&self) -> T
         where T: Copy + Mul<Output = T> + Sum {
         self.data.iter().map(|&x| x * x).sum()
