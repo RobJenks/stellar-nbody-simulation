@@ -14,6 +14,8 @@ use itertools::Itertools;
 
 pub type BackBuffer = image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
 
+const DYNAMIC_BOUNDS : bool = false;
+
 pub fn prepare_backbuffer(buffer: &mut BackBuffer, draw_size: &[u32; 2], zoom_level: f64, view_origin: [f64; 2]) {
     clear_backbuffer(buffer);
 
@@ -41,22 +43,27 @@ pub fn perform_rendering<TNum>(g: &mut G2d, context: &Context, render_size: (f64
         |state| state.positions().iter().for_each(|pos| {
             let canvas_pos: (f64, f64) = (
                 ((pos.x().into() + zero_offset) / zb_bounds.1),
-                ((pos.z().into() + zero_offset) / zb_bounds.1));
+                ((pos.y().into() + zero_offset) / zb_bounds.1));
 
             let sz = 0.01;
             ellipse_from_to([0.0, 1.0, 0.0, 1.0], [canvas_pos.0-sz, canvas_pos.1-sz],
                             [canvas_pos.0+sz,canvas_pos.1+sz], context.transform, g);
         }));
+
+
+
     //line_from_to([0.0, 1.0, 0.0, 1.0], 0.1, [0.0, 0.0], [1.0, 1.0], context.transform, g);
 }
 
 fn determine_bounds<TNum>(states: &Vec<Ref<State<TNum>>>) -> (f64, f64)
     where TNum: Numeric + Into<f64> {
-
-    states.iter()
-        .map(determine_state_bounds)
-        .fold1(|(mn,mx),(next_mn,next_mx)| (mn,mx))
-        .unwrap_or_else(|| panic!("Failed to determine state bounds for rendering"))
+    if !DYNAMIC_BOUNDS { (-10.0, 10.0) }
+    else {
+        states.iter()
+            .map(determine_state_bounds)
+            .fold1(|(mn, mx), (next_mn, next_mx)| (mn, mx))
+            .unwrap_or_else(|| panic!("Failed to determine state bounds for rendering"))
+    }
 }
 
 fn determine_state_bounds<TNum>(state: &Ref<State<TNum>>) -> (f64, f64)
@@ -64,8 +71,8 @@ fn determine_state_bounds<TNum>(state: &Ref<State<TNum>>) -> (f64, f64)
 
     state.positions().iter()
         .fold((1e200 ,-1e200), |(mn, mx), pos| (
-            mn.min(pos.x().into()).min(pos.z().into()),
-            mx.max(pos.x().into()).max(pos.z().into())
+            mn.min(pos.x().into()).min(pos.y().into()),
+            mx.max(pos.x().into()).max(pos.y().into())
         ))
 }
 

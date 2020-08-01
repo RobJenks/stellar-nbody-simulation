@@ -53,7 +53,7 @@ impl <T> Vec3<T> {
         self.data = value;
     }
 
-    pub fn length(&self) -> T
+    pub fn length_sq(&self) -> T
         where T: Copy + Mul<Output = T> + Sum {
         self.data.iter().map(|&x| x * x).sum()
     }

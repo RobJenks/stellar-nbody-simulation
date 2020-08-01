@@ -41,7 +41,7 @@ impl Simulation {
         let mut texture: G2dTexture = Texture::from_image(&mut texture_context,&self.canvas, &TextureSettings::new()).unwrap();
 
         loop {
-            self.nbody_system.step(1000000.0);    // Temporarily within render loop
+            self.nbody_system.step(0.008);    // Temporarily within render loop
 
             let e_next = self.window_mut().next();
             if e_next == None { break; }
@@ -101,6 +101,13 @@ impl Simulation {
 
                             // Render all window content
                             rendering::perform_rendering(g, &context, scaled_size, zoom_level, view_origin, &self.nbody_system);
+
+                            // Render status text
+                            self.render_text_lines(vec![
+                                format!("Step {}, Pos[0] = {:?}", self.nbody_system.get_step_count(), self.nbody_system.get_current_state().position(0)).as_str(),
+                                format!("Vel[0] = {:?}", self.nbody_system.get_current_state().velocity(0)).as_str()
+                            ],
+                            &[0.01, 0.90], 0.035, [0.0,1.0,0.0,1.0], 14, glyph_cache, &context, g);
 
                             // Apply pre-rendered backbuffer target (if not panning the map)
                             if !self.is_mouse_dragging(MOUSE_RIGHT) {

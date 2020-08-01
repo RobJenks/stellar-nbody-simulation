@@ -67,10 +67,6 @@ impl<TNum> NBodySystem<TNum>
             self.step_for_states(dt, &*state, next.deref_mut());
         }
 
-        self.states.iter_mut()
-            .enumerate()
-            .for_each(|(i,s)| s.get_mut().accelerations_mut().get_mut(4).unwrap().set_value([TNum::from(i as f64); 3]));
-
         self.advance_states();
         self.complete_step();
     }
@@ -114,20 +110,19 @@ impl<TNum> NBodySystem<TNum>
             .enumerate()
             .for_each(|(i, acc)| {
                 let pos_i = state.position(i);
-                *acc += state.masses().iter().zip(state.positions())
+                *acc = state.masses().iter().zip(state.positions())
                     .enumerate()
                     .filter(|(j, _)| i != *j)
                     .map(|(_, (mass_j, pos_j))| {
                         let d_pos = pos_j - pos_i;
-                        let d_sq = d_pos.length();
+                        let d_sq = d_pos.length_sq();
 
                         let force = (self.gravitational_constant * *mass_j) /
                             (d_sq * (d_sq + self.softening_constant).sq_root());
 
                         d_pos.scale(force)
                     })
-                    .fold(Vec3::zero(), |sum, x| sum + x)
-                    .scale(dt);
+                    .fold(Vec3::zero(), |sum, x| sum + x);
             });
     }
 
