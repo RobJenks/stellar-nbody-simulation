@@ -41,6 +41,14 @@ impl <T> Vec3<T> {
         ])
     }
 
+    pub fn get_data(&self) -> &[T; 3] {
+        &self.data
+    }
+
+    pub fn x(&self) -> T where T: Copy { self.data[0] }
+    pub fn y(&self) -> T where T: Copy { self.data[1] }
+    pub fn z(&self) -> T where T: Copy { self.data[2] }
+
     pub fn set_value(&mut self, value: [T; 3]) {
         self.data = value;
     }

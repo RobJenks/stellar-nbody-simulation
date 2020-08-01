@@ -44,7 +44,8 @@ fn main() {
         simulation::BuildOptions {
             gl_version: OpenGL::V4_5,
             use_cache: false
-        }
+        },
+        nbody
     );
 
     simulation.execute();

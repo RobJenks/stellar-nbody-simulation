@@ -6,6 +6,7 @@ use crate::rendering::BackBuffer;
 use crate::text;
 use std::cell::{RefCell, Ref, RefMut};
 use crate::util::temporal::get_current_timestamp_secs;
+use crate::nbody::nbody_system::NBodySystem;
 
 const MOUSE_LEFT: usize = 0;
 const MOUSE_RIGHT: usize = 1;
@@ -28,8 +29,9 @@ pub struct Simulation {
     zoom_level: f64,
     view_origin: [f64; 2],
     cursor_pos: [f64; 2],
-
     mouse_down_point: [Option<[f64; 2]>; MOUSE_BUTTON_COUNT],
+
+    nbody_system: NBodySystem<f64>
 }
 
 impl Simulation {
@@ -39,6 +41,8 @@ impl Simulation {
         let mut texture: G2dTexture = Texture::from_image(&mut texture_context,&self.canvas, &TextureSettings::new()).unwrap();
 
         loop {
+            self.nbody_system.step(1000000.0);    // Temporarily within render loop
+
             let e_next = self.window_mut().next();
             if e_next == None { break; }
             let e = e_next.unwrap();
@@ -96,7 +100,7 @@ impl Simulation {
                                 .scale(render_size[0], render_size[1]);
 
                             // Render all window content
-                            rendering::perform_rendering(g, &context, scaled_size, zoom_level, view_origin);
+                            rendering::perform_rendering(g, &context, scaled_size, zoom_level, view_origin, &self.nbody_system);
 
                             // Apply pre-rendered backbuffer target (if not panning the map)
                             if !self.is_mouse_dragging(MOUSE_RIGHT) {
@@ -307,7 +311,7 @@ impl Simulation {
     }
 
 
-    pub fn create(options: BuildOptions) -> Self {
+    pub fn create(options: BuildOptions, nbody_system: NBodySystem<f64>) -> Self {
         let mut window = Simulation::init_window(&options);
         let text_manager = Simulation::init_text_manager(text::DEFAULT_FONT.to_string(), &mut window);
 
@@ -328,8 +332,9 @@ impl Simulation {
             zoom_level: 1.0,
             view_origin: [0.0, 0.0],
             cursor_pos: [0.0, 0.0],
+            mouse_down_point: [None; MOUSE_BUTTON_COUNT],
 
-            mouse_down_point: [None; MOUSE_BUTTON_COUNT]
+            nbody_system
         }
     }
 

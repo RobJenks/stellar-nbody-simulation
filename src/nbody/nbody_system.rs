@@ -21,6 +21,7 @@ pub struct NBodySystem<TNum>
     current_state: usize,
     states: Vec<RefCell<State<TNum>>>,
 
+    step_count: usize,
     integrator: Integrator<TNum>
 }
 
@@ -46,6 +47,7 @@ impl<TNum> NBodySystem<TNum>
             current_state: 0,
             states: NBodySystem::initialise_states(&initial_state, state_cycles),
 
+            step_count: 0,
             integrator: Integrator::new()
         }
     }
@@ -70,6 +72,7 @@ impl<TNum> NBodySystem<TNum>
             .for_each(|(i,s)| s.get_mut().accelerations_mut().get_mut(4).unwrap().set_value([TNum::from(i as f64); 3]));
 
         self.advance_states();
+        self.complete_step();
     }
 
     fn step_for_states(&self, dt: TNum, state: &State<TNum>, result: &mut State<TNum>) {
@@ -86,8 +89,7 @@ impl<TNum> NBodySystem<TNum>
     }
 
     fn determine_predecessor_state(&self, current_state: usize, ) -> usize {
-        let prev = current_state - 1;
-        if prev < 0 { self.state_cycles - 1 } else { prev }
+        if current_state == 0 { self.state_cycles - 1 } else { current_state - 1 }
     }
 
     fn determine_successor_state(&self, current_state: usize, ) -> usize {
@@ -97,6 +99,14 @@ impl<TNum> NBodySystem<TNum>
 
     fn advance_states(&mut self) {
         self.current_state = self.next_state_index();
+    }
+
+    fn complete_step(&mut self) {
+        self.step_count += 1;
+    }
+
+    pub fn get_step_count(&self) -> usize {
+        self.step_count
     }
 
     fn calculate_acceleration_systems(&self, dt: TNum, state: &State<TNum>, result: &mut State<TNum>) {
