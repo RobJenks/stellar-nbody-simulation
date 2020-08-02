@@ -24,7 +24,6 @@ pub fn display_screenshot() {
     let (w, h) = (capturer.width(), capturer.height());
 
     loop {
-        println!("Checking");
         // Wait until there's a frame.
         let buffer = match capturer.frame() {
             Ok(buffer) => buffer,

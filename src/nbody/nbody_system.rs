@@ -105,6 +105,8 @@ impl<TNum> NBodySystem<TNum>
         self.step_count
     }
 
+    pub fn get_max_state_history_length(&self) -> usize { self.state_cycles }
+
     fn calculate_acceleration_systems(&self, dt: TNum, state: &State<TNum>, result: &mut State<TNum>) {
         result.accelerations_mut().iter_mut()
             .enumerate()
@@ -141,4 +143,7 @@ impl<TNum> NBodySystem<TNum>
             .collect()
     }
 
+    pub fn get_full_state_history(&self) -> Vec<Ref<'_, State<TNum>>> {
+        self.get_state_history(self.state_cycles)
+    }
 }

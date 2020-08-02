@@ -11,10 +11,12 @@ use crate::nbody::nbody_system::NBodySystem;
 use crate::state::State;
 use crate::core::types::Numeric;
 use itertools::Itertools;
+use crate::math::vec3::Vec3;
 
 pub type BackBuffer = image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
 
 const DYNAMIC_BOUNDS : bool = false;
+const RENDER_MOTION_HISTORY_COUNT: usize = 40;
 
 pub struct Renderer {
     bounds: (f64, f64)
@@ -38,29 +40,43 @@ impl Renderer {
         where TNum: Numeric + Add<Output=TNum> + Sub<Output=TNum> + Mul<Output=TNum> + Div<Output=TNum> + AddAssign + Sum {
         piston_window::clear([0.0, 0.0, 0.0, 1.0], g);
 
-        // Get all states to be rendered
+        // Determine window bounds based on current state
         let states = system.get_state_history(1);
-
-        // Determine window bounds across all states
         self.update_bounds(&states);
+
         let bounds = (self.bounds.0 * 1.1, self.bounds.1 * 1.1);
         let zero_offset = bounds.0 * -1.0;      // e.g. if min bound is -ve, this will be a +ve offset
         let zb_bounds = (0.0, bounds.1 + zero_offset);
 
-        // Perform rendering
-        states.iter().for_each(
-            |state| state.positions().iter().for_each(|pos| {
-                let canvas_pos: (f64, f64) = (
-                    ((pos.x().into_f64() + zero_offset) / zb_bounds.1),
-                    ((pos.y().into_f64() + zero_offset) / zb_bounds.1));
+        let to_canvas_pos = |x: TNum| (x.into_f64() + zero_offset) / zb_bounds.1;
+        let to_canvas_vec = |v: &Vec3<TNum>| [to_canvas_pos(v.x()), to_canvas_pos(v.y())];
 
-                let sz = 0.01;
-                ellipse_from_to([0.0, 1.0, 0.0, 1.0], [canvas_pos.0 - sz, canvas_pos.1 - sz],
-                                [canvas_pos.0 + sz, canvas_pos.1 + sz], context.transform, g);
-            }));
+        // Render motion history first, so current state is rendered on top
+        let interval = (
+            (system.get_max_state_history_length() as f64) /
+                (RENDER_MOTION_HISTORY_COUNT as f64)) as usize;
 
+        let full_history = system.get_full_state_history();
+        let history = full_history.iter()
+            .step_by(interval)
+            .map(|x| x.positions())
+            .collect::<Vec<_>>();
 
-        //line_from_to([0.0, 1.0, 0.0, 1.0], 0.1, [0.0, 0.0], [1.0, 1.0], context.transform, g);
+        for i in 1..history.len() {
+            history[i-1].iter().zip(history[i])
+                .for_each(|(x0, x1)|
+                    line_from_to([0.1, 0.1, 0.1, 0.5], 0.01, to_canvas_vec(x0), to_canvas_vec(x1), context.transform, g)
+                )
+        }
+
+        // Render current state
+        states[0].positions().iter().for_each(|pos| {
+            let canvas_pos = (to_canvas_pos(pos.x()), to_canvas_pos(pos.y()));
+
+            let sz = 0.01;
+            ellipse_from_to([0.0, 1.0, 0.0, 1.0], [canvas_pos.0 - sz, canvas_pos.1 - sz],
+                            [canvas_pos.0 + sz, canvas_pos.1 + sz], context.transform, g);
+        });
     }
 
     fn update_bounds<TNum>(&mut self, states: &Vec<Ref<State<TNum>>>)
@@ -75,7 +91,7 @@ impl Renderer {
 
     fn determine_bounds<TNum>(states: &Vec<Ref<State<TNum>>>) -> (f64, f64)
         where TNum: Numeric {
-        if !DYNAMIC_BOUNDS { (-0.6e1, 0.6e1) } else {
+        if !DYNAMIC_BOUNDS { (-2.6e1, 2.6e1) } else {
             states.iter()
                 .map(Renderer::determine_state_bounds)
                 .fold1(|(mn, mx), (next_mn, next_mx)| (mn.min(next_mn), mx.max(next_mx)))
